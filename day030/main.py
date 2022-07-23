@@ -1,13 +1,16 @@
 """
-Day 029 of the 100 Days of Code course
+Day 030 of the 100 Days of Code course
 Author: Wayne Kwiat
-Date: 2/25/2021
+Date: 7/23/2022
+Updates to the password manager application. Adding the use of JSON data.
 """
 
+from ast import Try
 from tkinter import *
 from tkinter import messagebox
 from random import choice, randint, shuffle
 import pyperclip
+import json
 
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
 def generate_password():
@@ -33,22 +36,33 @@ def save():
     website_data = website_entry.get()
     user_data = user_entry.get()
     password_data = password_entry.get()
+    new_data = {
+        website_data: {
+            "email": user_data,
+            "password": password_data,
+        }
+    }
 
     if len(website_data) == 0 or len(password_data) == 0:
         messagebox.showinfo(title="Oops", message="Please don't leave any fields empty!")
     else:
-        is_ok = messagebox.askokcancel(title=website_data,
-                                       message=f"These are the details entered: \nEmail: {user_data} "
-                                               f"\nPassword: {password_data} \n Is this ok to save?")
+        try:
+            with open("data.json", "r") as data_file:
+                #Reading old data
+                data  = json.load(data_file)
+        except FileNotFoundError:
+            with open("data.json", "w") as data_file:
+                json.dump(new_data, data_file, indent=4)
+        else:
+            #Updatating old data with new data
+            data.update(new_data)
 
-        if is_ok:
-            with open("data.txt", "a") as file:
-                file.writelines(f"{website_data} | {user_data} | {password_data} \n")
-
-            website_entry.delete(0, END)
-            password_entry.delete(0, END)
-            website_entry.focus()
-
+            with open("data.json", "w") as data_file:
+                #Saving updated data
+                json.dump(data, data_file, indent=4)
+        finally:
+                website_entry.delete(0, END)
+                password_entry.delete(0, END)
 
 # ---------------------------- UI SETUP ------------------------------- #
 window = Tk()
@@ -73,7 +87,7 @@ website_entry = Entry(width=40)
 website_entry.grid(column=1, row=1, columnspan=2)
 website_entry.focus()
 user_entry = Entry(width=40)
-user_entry.insert(END, string="wkwiatjr@me.com")
+user_entry.insert(END, string="someEmail@gmail.com")
 user_entry.grid(column=1, row=2, columnspan=2)
 password_entry = Entry(width=21)
 password_entry.grid(column=1, row=3)
