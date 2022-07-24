@@ -14,20 +14,34 @@ BACKGROUND_COLOR = "#B1DDC6"
 
 data = pandas.read_csv("day031/data/french_words.csv")
 data_dic = data.to_dict('records')
+current_word = {}
 
 def choose_word():
+    global current_word, flip_timer
+    window.after_cancel(flip_timer)
     current_word = random.choice(data_dic)
-    canvas.itemconfig(title_text, text="French")
-    canvas.itemconfig(word_text, text=current_word["French"])
+    canvas.itemconfig(title_text, text="French", fill="black")
+    canvas.itemconfig(word_text, text=current_word["French"], fill="black")
+    canvas.itemconfig(canvas_img, image=card_front_img)
+    flip_timer = window.after(3000, func=flip_card)
+    
+     
+def flip_card():
+    canvas.itemconfig(canvas_img, image=card_back_img)
+    canvas.itemconfig(title_text, fill="white", text="English")
+    canvas.itemconfig(word_text, fill="white", text=current_word["English"])
 
 # ---------------------------- UI SETUP ------------------------------- #
 window = Tk()
 window.title("Flash Card App")
 window.config(padx=50, pady=50, bg=BACKGROUND_COLOR)
 
+flip_timer = window.after(3000, func=flip_card)
+
 canvas = Canvas(width=800, height=526)
 card_front_img = PhotoImage(file="day031/images/card_front.png")
-canvas.create_image(400, 263, image=card_front_img)
+card_back_img = PhotoImage(file="day031/images/card_back.png")
+canvas_img = canvas.create_image(400, 263, image=card_front_img)
 canvas.config(bg=BACKGROUND_COLOR, highlightthickness=0)
 canvas.grid(column=0, row=0, columnspan=2)
 title_text = canvas.create_text(400, 150, text="", font=("Ariel", 40, "italic"))
