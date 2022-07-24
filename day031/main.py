@@ -11,27 +11,37 @@ import pandas
 import random
 
 BACKGROUND_COLOR = "#B1DDC6"
-
-data = pandas.read_csv("day031/data/french_words.csv")
-data_dic = data.to_dict('records')
 current_word = {}
+unknown_dic = {}
+
+try:
+    data = pandas.read_csv("day031/data/words_to_learn.csv")
+except FileNotFoundError:
+    original_data = pandas.read_csv("day031/data/french_words.csv")
+    unknown_dic = original_data.to_dict(orient="records")
+else:
+    unknown_dic = data.to_dict(orient="records")
 
 def choose_word():
     global current_word, flip_timer
     window.after_cancel(flip_timer)
-    current_word = random.choice(data_dic)
+    current_word = random.choice(unknown_dic)
     canvas.itemconfig(title_text, text="French", fill="black")
     canvas.itemconfig(word_text, text=current_word["French"], fill="black")
     canvas.itemconfig(canvas_img, image=card_front_img)
-    flip_timer = window.after(3000, func=flip_card)
-    
+    flip_timer = window.after(3000, func=flip_card) 
      
 def flip_card():
     canvas.itemconfig(canvas_img, image=card_back_img)
     canvas.itemconfig(title_text, fill="white", text="English")
     canvas.itemconfig(word_text, fill="white", text=current_word["English"])
 
-# ---------------------------- UI SETUP ------------------------------- #
+def is_known():
+    unknown_dic.remove(current_word)
+    data = pandas.DataFrame(unknown_dic)
+    data.to_csv("day031/data/words_to_learn.csv", index=False)
+    choose_word()
+
 window = Tk()
 window.title("Flash Card App")
 window.config(padx=50, pady=50, bg=BACKGROUND_COLOR)
@@ -49,9 +59,10 @@ word_text = canvas.create_text(400, 263, text="", font=("Ariel", 60, "bold"))
 
 wrong_image = PhotoImage(file="day031/images/wrong.png")
 right_image = PhotoImage(file="day031/images/right.png")
+
 wrong_button = Button(image=wrong_image, highlightthickness=0, command=choose_word)
 wrong_button.grid(row=1, column=0)
-right_button = Button(image=right_image, highlightthickness=0, command=choose_word)
+right_button = Button(image=right_image, highlightthickness=0, command=is_known)
 right_button.grid(row=1, column=1)
 
 choose_word()
