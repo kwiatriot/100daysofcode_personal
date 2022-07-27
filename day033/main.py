@@ -35,7 +35,7 @@ def night_check():
         "formatted": 0,
     }
 
-    response = requests.get(f"https://api.sunrise-sunset.org/json?lat={MY_LAT}&lng={MY_LONG}", params=parameters, verify=False)
+    response = requests.get(f"https://api.sunrise-sunset.org/json", params=parameters, verify=False)
     response.raise_for_status()
     data = response.json()
     sunrise = int(data["results"]["sunrise"].split("T")[1].split(":")[0])
