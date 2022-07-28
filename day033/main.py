@@ -5,11 +5,10 @@ Date: 7/26/2022
 Working with API
 """
 
-from multiprocessing import connection
 import requests
 from datetime import datetime
 import smtplib
-import time
+
 
 MY_LAT = 39.986771 # Your latitude
 MY_LONG = -104.812599 # Your longitude
@@ -45,14 +44,13 @@ def night_check():
     if time_now >= sunset or time_now <= sunrise:
         return True
 
-while True:
-    time.sleep(60)
-    if overhead_check() and night_check():
-        with smtplib.SMTP("smtp.gmail.com", port=587) as connection:
-            connection.starttls()
-            connection.login(MY_EMAIL, MY_PASS)
-            connection.sendmail(
-                from_addr=MY_EMAIL, 
-                to_addrs=MY_EMAIL, 
-                msg=f"Subject:Look UP!\n\nThe ISS is above you in the sky!"
-                )
+
+if overhead_check() and night_check():
+    with smtplib.SMTP("smtp.gmail.com", port=587) as connection:
+        connection.starttls()
+        connection.login(MY_EMAIL, MY_PASS)
+        connection.sendmail(
+            from_addr=MY_EMAIL, 
+            to_addrs=MY_EMAIL, 
+            msg=f"Subject:Look UP!\n\nThe ISS is above you in the sky!"
+            )
